@@ -5,12 +5,13 @@ import { Selection } from '../models/Selection';
 import { Permission } from '../models/Permission';
 import { RolePermission } from '../models/RolePermission';
 import { AuditLog } from '../models/AuditLog';
+import { logger } from '../utils/logger';
 
 export const AppDataSource = new DataSource({
   type: 'mysql',
   host: process.env.DB_HOST || 'localhost',
   port: parseInt(process.env.DB_PORT || '3306'),
-  username: process.env.DB_USER || 'root',
+  username: process.env.DB_USERNAME || 'root',
   password: process.env.DB_PASSWORD || '',
   database: process.env.DB_NAME || 'bmad7_course_selection',
   synchronize: process.env.DB_SYNCHRONIZE === 'true',
@@ -29,10 +30,10 @@ export const initializeDatabase = async (): Promise<void> => {
   try {
     if (!AppDataSource.isInitialized) {
       await AppDataSource.initialize();
-      console.log('Database connection established successfully');
+      logger.info('Database connection established successfully');
     }
   } catch (error) {
-    console.error('Error during database initialization:', error);
+    logger.error('Error during database initialization:', error);
     throw error;
   }
 };
@@ -41,10 +42,10 @@ export const closeDatabase = async (): Promise<void> => {
   try {
     if (AppDataSource.isInitialized) {
       await AppDataSource.destroy();
-      console.log('Database connection closed successfully');
+      logger.info('Database connection closed successfully');
     }
   } catch (error) {
-    console.error('Error during database closure:', error);
+    logger.error('Error during database closure:', error);
     throw error;
   }
 };
