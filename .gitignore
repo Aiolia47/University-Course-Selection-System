@@ -1,0 +1,72 @@
+# Dependencies
+node_modules/
+.pnpm-store/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Build outputs
+dist/
+build/
+.next/
+coverage/
+*.tsbuildinfo
+
+# Environment files
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Logs
+logs
+*.log
+
+# Runtime data
+pids
+*.pid
+*.seed
+*.pid.lock
+
+# Temporary files
+tmp/
+temp/
+
+# Turbo
+.turbo/
+
+# Package manager locks (keep one based on your preference)
+# package-lock.json
+# yarn.lock
+# pnpm-lock.yaml
+
+# Testing
+.nyc_output
+coverage/
+.jest/
+
+# Storybook
+storybook-static/
+
+# Misc
+*.tgz
+*.tar.gz
+.eslintcache
