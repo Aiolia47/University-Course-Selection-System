@@ -1,0 +1,53 @@
+name: Update Dependencies
+
+on:
+  schedule:
+    - cron: '0 0 * * 1'  # Every Monday at 00:00 UTC
+  workflow_dispatch:
+
+jobs:
+  update-dependencies:
+    name: Update Dependencies
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+
+      - name: Update dependencies
+        run: |
+          npm update
+          npm audit fix --audit-level moderate
+
+      - name: Create Pull Request
+        uses: peter-evans/create-pull-request@v5
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          commit-message: 'chore: update dependencies'
+          title: 'chore: update dependencies'
+          body: |
+            ## Automated Dependency Update
+
+            This PR updates project dependencies to their latest versions.
+
+            ### Changes
+            - Updated npm packages to latest versions
+            - Fixed any moderate or higher security vulnerabilities
+
+            ### Checklist
+            - [ ] All tests pass
+            - [ ] No breaking changes detected
+            - [ ] Manual testing completed
+
+            ---
+
+            This PR was created automatically by the dependency update workflow.
+          branch: chore/update-dependencies
+          delete-branch: true
+          draft: false
