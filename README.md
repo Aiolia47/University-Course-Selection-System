@@ -1,4 +1,4 @@
-# BMAD7 Monorepo Project
+# 高校选课系统 (University Course Selection System)
 
 一个基于 TypeScript 的全栈 Monorepo 项目，使用 Turborepo 进行管理。
 
@@ -141,5 +141,5 @@ bmad7/
 ## 🆘 获取帮助
 
 - 查看 [常见问题](docs/faq.md)
-- 提交 [Issue](https://github.com/your-org/bmad7/issues)
+- 提交 [Issue](https://github.com/Aiolia47/University-Course-Selection-System/issues)
 - 联系开发团队
