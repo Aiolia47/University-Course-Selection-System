@@ -1,0 +1,143 @@
+/* CSS Custom Properties (Variables) */
+
+:root {
+  /* Colors - Primary */
+  --primary-color: #1677ff;
+  --primary-color-hover: #4096ff;
+  --primary-color-active: #0958d9;
+  --primary-color-bg: #e6f4ff;
+  --primary-color-bg-hover: #bae0ff;
+  --primary-color-border: #91caff;
+  --primary-color-border-hover: #69b1ff;
+
+  /* Colors - Success */
+  --success-color: #52c41a;
+  --success-color-hover: #73d13d;
+  --success-color-active: #389e0d;
+  --success-color-bg: #f6ffed;
+  --success-color-border: #b7eb8f;
+
+  /* Colors - Warning */
+  --warning-color: #faad14;
+  --warning-color-hover: #ffc53d;
+  --warning-color-active: #d48806;
+  --warning-color-bg: #fffbe6;
+  --warning-color-border: #ffe58f;
+
+  /* Colors - Error */
+  --error-color: #ff4d4f;
+  --error-color-hover: #ff7875;
+  --error-color-active: #d9363e;
+  --error-color-bg: #fff2f0;
+  --error-color-border: #ffccc7;
+
+  /* Colors - Info */
+  --info-color: #1677ff;
+  --info-color-bg: #e6f4ff;
+  --info-color-border: #91caff;
+
+  /* Neutral Colors */
+  --text-color: rgba(0, 0, 0, 0.85);
+  --text-color-secondary: rgba(0, 0, 0, 0.65);
+  --text-color-disabled: rgba(0, 0, 0, 0.25);
+  --heading-color: rgba(0, 0, 0, 0.85);
+  --text-color-inverse: #ffffff;
+
+  /* Border Colors */
+  --border-color-base: #d9d9d9;
+  --border-color-split: #f0f0f0;
+  --border-color-inverse: #ffffff;
+
+  /* Background Colors */
+  --background-color-light: #fafafa;
+  --background-color-base: #f5f5f5;
+  --background-color-container: #ffffff;
+  --component-background: #ffffff;
+
+  /* Shadow */
+  --shadow-color: rgba(0, 0, 0, 0.1);
+  --shadow-1: 0 1px 2px -2px rgba(0, 0, 0, 0.16), 0 3px 6px 0 rgba(0, 0, 0, 0.12), 0 5px 12px 4px rgba(0, 0, 0, 0.09);
+  --shadow-2: 0 3px 6px -4px rgba(0, 0, 0, 0.12), 0 6px 16px 0 rgba(0, 0, 0, 0.08), 0 9px 28px 8px rgba(0, 0, 0, 0.05);
+  --shadow-3: 0 6px 16px -8px rgba(0, 0, 0, 0.08), 0 9px 28px 0 rgba(0, 0, 0, 0.05), 0 12px 48px 16px rgba(0, 0, 0, 0.03);
+
+  /* Border Radius */
+  --border-radius-base: 6px;
+  --border-radius-sm: 4px;
+  --border-radius-lg: 8px;
+
+  /* Spacing */
+  --spacing-xs: 4px;
+  --spacing-sm: 8px;
+  --spacing-md: 16px;
+  --spacing-lg: 24px;
+  --spacing-xl: 32px;
+  --spacing-xxl: 48px;
+
+  /* Typography */
+  --font-size-xs: 12px;
+  --font-size-sm: 14px;
+  --font-size-md: 16px;
+  --font-size-lg: 18px;
+  --font-size-xl: 20px;
+  --font-size-xxl: 24px;
+  --font-size-xxxl: 32px;
+
+  --line-height-base: 1.5715;
+  --line-height-sm: 1.5;
+  --line-height-lg: 1.6;
+
+  /* Z-index */
+  --z-index-dropdown: 1050;
+  --z-index-sticky: 1020;
+  --z-index-fixed: 1030;
+  --z-index-modal-backdrop: 1040;
+  --z-index-modal: 1050;
+  --z-index-popover: 1060;
+  --z-index-tooltip: 1070;
+  --z-index-notification: 1080;
+
+  /* Breakpoints */
+  --screen-xs: 480px;
+  --screen-sm: 576px;
+  --screen-md: 768px;
+  --screen-lg: 992px;
+  --screen-xl: 1200px;
+  --screen-xxl: 1600px;
+
+  /* Layout */
+  --layout-header-height: 64px;
+  --layout-sider-width: 256px;
+  --layout-sider-collapsed-width: 80px;
+  --layout-footer-height: 48px;
+  --layout-content-padding: 24px;
+
+  /* Transitions */
+  --transition-duration-base: 0.2s;
+  --transition-duration-fast: 0.1s;
+  --transition-duration-slow: 0.3s;
+
+  --transition-timing-function-base: cubic-bezier(0.645, 0.045, 0.355, 1);
+  --transition-timing-function-ease: ease;
+  --transition-timing-function-ease-in: cubic-bezier(0.42, 0, 1, 1);
+  --transition-timing-function-ease-out: cubic-bezier(0, 0, 0.58, 1);
+  --transition-timing-function-ease-in-out: cubic-bezier(0.42, 0, 0.58, 1);
+}
+
+/* Dark theme variables */
+[data-theme='dark'] {
+  --text-color: rgba(255, 255, 255, 0.85);
+  --text-color-secondary: rgba(255, 255, 255, 0.65);
+  --text-color-disabled: rgba(255, 255, 255, 0.25);
+  --heading-color: rgba(255, 255, 255, 0.85);
+
+  --border-color-base: #434343;
+  --border-color-split: #303030;
+  --border-color-inverse: #141414;
+
+  --background-color-light: #141414;
+  --background-color-base: #1f1f1f;
+  --background-color-container: #262626;
+  --component-background: #1f1f1f;
+
+  --shadow-color: rgba(0, 0, 0, 0.45);
+}

@@ -1,7 +1,16 @@
 /** @type {import('jest').Config} */
 export default {
-  preset: 'ts-jest',
+  preset: 'ts-jest/presets/default-esm',
   testEnvironment: 'jsdom',
+  extensionsToTreatAsEsm: ['.ts', '.tsx'],
+  globals: {
+    'ts-jest': {
+      useESM: true,
+      tsconfig: {
+        module: 'ESNext',
+      },
+    },
+  },
   setupFilesAfterEnv: ['<rootDir>/tests/setup.ts'],
   moduleNameMapping: {
     '^@/(.*)$': '<rootDir>/src/$1',

@@ -1,5 +1,5 @@
 // Export types
-export * from './types/env';
+export * from './types';
 
 // Export configs
 export * from './config/env-validator';

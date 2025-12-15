@@ -1,24 +1,30 @@
 import React from 'react';
-import { Routes, Route } from 'react-router-dom';
-import './App.css';
+import { Provider } from 'react-redux';
+import { RouterProvider } from 'react-router-dom';
+import { ConfigProvider, App as AntApp } from 'antd';
+import zhCN from 'antd/locale/zh_CN';
+import { store } from '@/stores';
+import { router } from '@/routes';
+import { lightTheme, darkTheme } from '@/styles/theme';
+import '@/styles/globals.css';
+import '@/styles/variables.css';
 
 function App() {
+  // Get theme mode from Redux store
+  const themeMode = store.getState().ui.theme;
+  const theme = themeMode === 'dark' ? darkTheme : lightTheme;
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <h1>BMAD7 课程管理系统</h1>
-        <p>
-          欢迎使用 BMAD7 在线课程管理平台！
-        </p>
-      </header>
-      <main>
-        <Routes>
-          <Route path="/" element={<div>首页 - 正在开发中...</div>} />
-          <Route path="/courses" element={<div>课程页面 - 正在开发中...</div>} />
-          <Route path="/about" element={<div>关于页面 - 正在开发中...</div>} />
-        </Routes>
-      </main>
-    </div>
+    <Provider store={store}>
+      <ConfigProvider
+        locale={zhCN}
+        theme={theme}
+      >
+        <AntApp>
+          <RouterProvider router={router} />
+        </AntApp>
+      </ConfigProvider>
+    </Provider>
   );
 }
 
