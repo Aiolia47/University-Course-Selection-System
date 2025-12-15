@@ -6,6 +6,10 @@ export interface DatabaseConfig {
   password: string;
   url?: string;
   testUrl?: string;
+  synchronize: boolean;
+  connectionLimit: number;
+  acquireTimeout: number;
+  connectTimeout: number;
 }
 
 export interface JwtConfig {

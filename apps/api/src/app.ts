@@ -1,8 +1,13 @@
+import 'reflect-metadata';
 import express from 'express'
 import cors from 'cors'
 import { healthRouter } from './routes/health'
+import { initializeDatabase } from './config/database'
 
 const app = express()
+
+// Initialize database
+initializeDatabase().catch(console.error);
 
 // Middleware
 app.use(cors())
