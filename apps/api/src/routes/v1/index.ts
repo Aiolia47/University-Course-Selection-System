@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import { healthRouter } from './health';
 import { authRouter } from './auth';
+import permissionRoutes from './permissions';
 
 export const v1Router = Router();
 
@@ -12,6 +13,7 @@ v1Router.get('/', (req, res) => {
     endpoints: {
       health: '/health',
       auth: '/auth',
+      permissions: '/permissions',
       // Add more endpoints as they are implemented
     },
   });
@@ -20,6 +22,7 @@ v1Router.get('/', (req, res) => {
 // Mount sub-routes
 v1Router.use('/health', healthRouter);
 v1Router.use('/auth', authRouter);
+v1Router.use('/permissions', permissionRoutes);
 
 // TODO: Add more routes as they are implemented
 // v1Router.use('/users', userRouter);
