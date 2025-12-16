@@ -9,28 +9,66 @@ export interface RegisterRequest {
   lastName?: string;
 }
 
+export interface LoginRequest {
+  username: string; // Supports username, email, or studentId
+  password: string;
+  rememberMe?: boolean;
+}
+
+export interface RefreshTokenRequest {
+  refreshToken: string;
+}
+
+export interface User {
+  id: string;
+  studentId?: string;
+  username: string;
+  email: string;
+  role: 'student' | 'admin';
+  status: 'active' | 'inactive' | 'suspended';
+  profile: {
+    id: string;
+    firstName: string;
+    lastName?: string;
+    avatar?: string;
+    phone?: string;
+    major?: string;
+    grade?: string;
+    class?: string;
+  };
+}
+
+export interface AuthResponse {
+  success: boolean;
+  message: string;
+  data: {
+    user: User;
+    accessToken: string;
+    refreshToken?: string;
+  };
+}
+
 export interface RegisterResponse {
   success: boolean;
   message: string;
   data: {
-    user: {
-      id: string;
-      studentId: string;
-      username: string;
-      email: string;
-      role: string;
-      status: string;
-      profile: {
-        id: string;
-        firstName: string;
-        lastName?: string;
-        avatar?: string;
-        phone?: string;
-        major?: string;
-        grade?: string;
-        class?: string;
-      };
-    };
+    user: User;
+  };
+}
+
+export interface UserResponse {
+  success: boolean;
+  data: {
+    user: User;
+  };
+}
+
+export interface TokenResponse {
+  success: boolean;
+  message: string;
+  data: {
+    accessToken: string;
+    refreshToken?: string;
   };
 }
 
@@ -58,11 +96,84 @@ export class AuthService {
     }
   }
 
-  // TODO: Add more auth methods
-  // async login(credentials: LoginRequest): Promise<LoginResponse> { ... }
-  // async logout(): Promise<void> { ... }
-  // async refreshToken(): Promise<TokenResponse> { ... }
-  // async getCurrentUser(): Promise<UserResponse> { ... }
+  // Login user
+  async login(credentials: LoginRequest): Promise<AuthResponse> {
+    try {
+      const response = await apiService.post<AuthResponse>('/auth/login', credentials);
+      return response;
+    } catch (error: any) {
+      if (error.response?.data) {
+        const apiError: ApiError = error.response.data;
+        throw new Error(apiError.error.message || '登录失败');
+      }
+      throw new Error(error.message || '网络错误，请稍后重试');
+    }
+  }
+
+  // Logout user
+  async logout(): Promise<void> {
+    try {
+      await apiService.post('/auth/logout');
+    } catch (error: any) {
+      // Continue with logout even if API call fails
+      console.warn('Logout API call failed:', error);
+    }
+  }
+
+  // Refresh access token
+  async refreshToken(refreshToken: string): Promise<TokenResponse> {
+    try {
+      const response = await apiService.post<TokenResponse>('/auth/refresh', { refreshToken });
+      return response;
+    } catch (error: any) {
+      if (error.response?.data) {
+        const apiError: ApiError = error.response.data;
+        throw new Error(apiError.error.message || '令牌刷新失败');
+      }
+      throw new Error(error.message || '网络错误，请稍后重试');
+    }
+  }
+
+  // Get current user info
+  async getCurrentUser(): Promise<UserResponse> {
+    try {
+      const response = await apiService.get<UserResponse>('/auth/me');
+      return response;
+    } catch (error: any) {
+      if (error.response?.data) {
+        const apiError: ApiError = error.response.data;
+        throw new Error(apiError.error.message || '获取用户信息失败');
+      }
+      throw new Error(error.message || '网络错误，请稍后重试');
+    }
+  }
+
+  // Helper method to get stored tokens
+  getStoredTokens(): { accessToken: string | null; refreshToken: string | null } {
+    return {
+      accessToken: localStorage.getItem('accessToken'),
+      refreshToken: localStorage.getItem('refreshToken')
+    };
+  }
+
+  // Helper method to store tokens
+  storeTokens(accessToken: string, refreshToken?: string): void {
+    localStorage.setItem('accessToken', accessToken);
+    if (refreshToken) {
+      localStorage.setItem('refreshToken', refreshToken);
+    }
+  }
+
+  // Helper method to clear tokens
+  clearTokens(): void {
+    localStorage.removeItem('accessToken');
+    localStorage.removeItem('refreshToken');
+  }
+
+  // Check if user is authenticated
+  isAuthenticated(): boolean {
+    return !!localStorage.getItem('accessToken');
+  }
 }
 
 export const authService = new AuthService();

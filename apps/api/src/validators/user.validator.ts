@@ -108,3 +108,23 @@ export class ChangePasswordDto {
   @Length(6, 100, { message: '确认密码长度必须在6-100个字符之间' })
   confirmPassword: string;
 }
+
+export class LoginDto {
+  @IsString()
+  @Length(3, 100, { message: '用户名/学号/邮箱长度必须在3-100个字符之间' })
+  @Transform(value => sanitize(value.trim()))
+  username: string; // Supports username, studentId, or email
+
+  @IsString()
+  @Length(6, 100, { message: '密码长度必须在6-100个字符之间' })
+  password: string;
+
+  @IsOptional()
+  @Transform(value => value === true || value === 'true')
+  rememberMe?: boolean;
+}
+
+export class RefreshTokenDto {
+  @IsString({ message: '刷新令牌必须是字符串' })
+  refreshToken: string;
+}

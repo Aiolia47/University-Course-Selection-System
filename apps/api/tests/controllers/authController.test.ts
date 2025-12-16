@@ -1,5 +1,5 @@
 import request from 'supertest';
-import { app } from '../../src/app';
+import { app } from '../../src/server';
 import { DatabaseService } from '../../src/services/databaseService';
 import { User, UserRole, UserStatus } from '../../src/models';
 import bcrypt from 'bcryptjs';
@@ -26,6 +26,317 @@ describe('AuthController', () => {
     if (dataSource) {
       await dataSource.destroy();
     }
+  });
+
+  describe('POST /auth/login', () => {
+    let testUser: User;
+
+    beforeEach(async () => {
+      // Create a test user for login tests
+      const userRepository = dataSource.getRepository(User);
+      const passwordHash = await bcrypt.hash('Password123!', 10);
+
+      testUser = await userRepository.save({
+        studentId: '2024001',
+        username: 'testuser',
+        email: 'test@example.com',
+        passwordHash,
+        role: UserRole.STUDENT,
+        status: UserStatus.ACTIVE
+      });
+    });
+
+    describe('Success cases', () => {
+      it('should login successfully with username', async () => {
+        const response = await request(app)
+          .post('/v1/auth/login')
+          .send({
+            username: 'testuser',
+            password: 'Password123!'
+          })
+          .expect(200);
+
+        expect(response.body.success).toBe(true);
+        expect(response.body.message).toBe('登录成功');
+        expect(response.body.data.user).toBeDefined();
+        expect(response.body.data.user.username).toBe('testuser');
+        expect(response.body.data.user.email).toBe('test@example.com');
+        expect(response.body.data.accessToken).toBeDefined();
+        expect(response.body.data.refreshToken).toBeDefined();
+        expect(response.body.data.user.passwordHash).toBeUndefined();
+      });
+
+      it('should login successfully with email', async () => {
+        const response = await request(app)
+          .post('/v1/auth/login')
+          .send({
+            username: 'test@example.com',
+            password: 'Password123!'
+          })
+          .expect(200);
+
+        expect(response.body.success).toBe(true);
+        expect(response.body.data.user.email).toBe('test@example.com');
+      });
+
+      it('should login successfully with student ID', async () => {
+        const response = await request(app)
+          .post('/v1/auth/login')
+          .send({
+            username: '2024001',
+            password: 'Password123!'
+          })
+          .expect(200);
+
+        expect(response.body.success).toBe(true);
+        expect(response.body.data.user.studentId).toBe('2024001');
+      });
+
+      it('should handle remember me functionality', async () => {
+        const response = await request(app)
+          .post('/v1/auth/login')
+          .send({
+            username: 'testuser',
+            password: 'Password123!',
+            rememberMe: true
+          })
+          .expect(200);
+
+        expect(response.body.success).toBe(true);
+        expect(response.headers['set-cookie']).toBeDefined();
+        expect(response.headers['set-cookie'][0]).toContain('refreshToken');
+        expect(response.headers['set-cookie'][0]).toContain('httpOnly');
+      });
+    });
+
+    describe('Error cases', () => {
+      it('should return error for invalid username', async () => {
+        const response = await request(app)
+          .post('/v1/auth/login')
+          .send({
+            username: 'wronguser',
+            password: 'Password123!'
+          })
+          .expect(401);
+
+        expect(response.body.error.code).toBe('INVALID_CREDENTIALS');
+        expect(response.body.error.message).toBe('用户名或密码错误');
+      });
+
+      it('should return error for invalid password', async () => {
+        const response = await request(app)
+          .post('/v1/auth/login')
+          .send({
+            username: 'testuser',
+            password: 'wrongpassword'
+          })
+          .expect(401);
+
+        expect(response.body.error.code).toBe('INVALID_CREDENTIALS');
+      });
+
+      it('should return error for inactive user', async () => {
+        // Update user to inactive
+        const userRepository = dataSource.getRepository(User);
+        await userRepository.update(testUser.id, { status: UserStatus.INACTIVE });
+
+        const response = await request(app)
+          .post('/v1/auth/login')
+          .send({
+            username: 'testuser',
+            password: 'Password123!'
+          })
+          .expect(403);
+
+        expect(response.body.error.code).toBe('ACCOUNT_INACTIVE');
+        expect(response.body.error.message).toBe('账户未激活');
+      });
+
+      it('should return error for suspended user', async () => {
+        // Update user to suspended
+        const userRepository = dataSource.getRepository(User);
+        await userRepository.update(testUser.id, { status: UserStatus.SUSPENDED });
+
+        const response = await request(app)
+          .post('/v1/auth/login')
+          .send({
+            username: 'testuser',
+            password: 'Password123!'
+          })
+          .expect(403);
+
+        expect(response.body.error.code).toBe('ACCOUNT_INACTIVE');
+        expect(response.body.error.message).toBe('账户已被暂停');
+      });
+
+      it('should validate required fields', async () => {
+        let response = await request(app)
+          .post('/v1/auth/login')
+          .send({
+            username: '',
+            password: 'Password123!'
+          })
+          .expect(400);
+
+        expect(response.body.error).toBeDefined();
+
+        response = await request(app)
+          .post('/v1/auth/login')
+          .send({
+            username: 'testuser',
+            password: ''
+          })
+          .expect(400);
+
+        expect(response.body.error).toBeDefined();
+      });
+    });
+
+    describe('Rate limiting', () => {
+      it('should handle rate limiting for login attempts', async () => {
+        const response = await request(app)
+          .post('/v1/auth/login')
+          .send({
+            username: 'testuser',
+            password: 'wrongpassword'
+          });
+
+        // Check rate limit headers
+        expect(response.headers['x-ratelimit-limit']).toBeDefined();
+        expect(response.headers['x-ratelimit-remaining']).toBeDefined();
+      });
+    });
+  });
+
+  describe('POST /auth/logout', () => {
+    it('should logout successfully', async () => {
+      const response = await request(app)
+        .post('/v1/auth/logout')
+        .expect(200);
+
+      expect(response.body.success).toBe(true);
+      expect(response.body.message).toBe('登出成功');
+    });
+  });
+
+  describe('POST /auth/refresh', () => {
+    let refreshToken: string;
+
+    beforeEach(async () => {
+      // Login to get refresh token
+      const userRepository = dataSource.getRepository(User);
+      const passwordHash = await bcrypt.hash('Password123!', 10);
+
+      await userRepository.save({
+        studentId: '2024002',
+        username: 'refreshtest',
+        email: 'refresh@example.com',
+        passwordHash,
+        role: UserRole.STUDENT,
+        status: UserStatus.ACTIVE
+      });
+
+      const loginResponse = await request(app)
+        .post('/v1/auth/login')
+        .send({
+          username: 'refreshtest',
+          password: 'Password123!',
+          rememberMe: false
+        });
+
+      refreshToken = loginResponse.body.data.refreshToken;
+    });
+
+    it('should refresh tokens successfully', async () => {
+      const response = await request(app)
+        .post('/v1/auth/refresh')
+        .send({
+          refreshToken
+        })
+        .expect(200);
+
+      expect(response.body.success).toBe(true);
+      expect(response.body.message).toBe('令牌刷新成功');
+      expect(response.body.data.accessToken).toBeDefined();
+      expect(response.body.data.refreshToken).toBeDefined();
+    });
+
+    it('should return error for invalid refresh token', async () => {
+      const response = await request(app)
+        .post('/v1/auth/refresh')
+        .send({
+          refreshToken: 'invalid-refresh-token'
+        })
+        .expect(401);
+
+      expect(response.body.error.code).toBe('INVALID_REFRESH_TOKEN');
+    });
+
+    it('should return error for missing refresh token', async () => {
+      const response = await request(app)
+        .post('/v1/auth/refresh')
+        .send({})
+        .expect(401);
+
+      expect(response.body.error.code).toBe('MISSING_REFRESH_TOKEN');
+    });
+  });
+
+  describe('GET /auth/me', () => {
+    let accessToken: string;
+
+    beforeEach(async () => {
+      // Login to get access token
+      const userRepository = dataSource.getRepository(User);
+      const passwordHash = await bcrypt.hash('Password123!', 10);
+
+      await userRepository.save({
+        studentId: '2024003',
+        username: 'metest',
+        email: 'me@example.com',
+        passwordHash,
+        role: UserRole.STUDENT,
+        status: UserStatus.ACTIVE
+      });
+
+      const loginResponse = await request(app)
+        .post('/v1/auth/login')
+        .send({
+          username: 'metest',
+          password: 'Password123!'
+        });
+
+      accessToken = loginResponse.body.data.accessToken;
+    });
+
+    it('should return current user when authenticated', async () => {
+      const response = await request(app)
+        .get('/v1/auth/me')
+        .set('Authorization', `Bearer ${accessToken}`)
+        .expect(200);
+
+      expect(response.body.success).toBe(true);
+      expect(response.body.data.user).toBeDefined();
+      expect(response.body.data.user.username).toBe('metest');
+      expect(response.body.data.user.passwordHash).toBeUndefined();
+    });
+
+    it('should return error when not authenticated', async () => {
+      const response = await request(app)
+        .get('/v1/auth/me')
+        .expect(401);
+
+      expect(response.body.error.code).toBe('NOT_AUTHENTICATED');
+    });
+
+    it('should return error for invalid token', async () => {
+      const response = await request(app)
+        .get('/v1/auth/me')
+        .set('Authorization', 'Bearer invalid-token')
+        .expect(401);
+
+      expect(response.body.error.code).toBe('INVALID_TOKEN');
+    });
   });
 
   describe('POST /auth/register', () => {

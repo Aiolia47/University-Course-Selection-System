@@ -1,10 +1,9 @@
 import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
-import { User, LoginRequest, RegisterRequest, AuthResponse } from '@bmad7/shared';
-import { authApi } from '../api/authApi';
+import { authService, User, LoginRequest, RegisterRequest, AuthResponse } from '../../services/authService';
 
 interface AuthState {
   user: User | null;
-  token: string | null;
+  accessToken: string | null;
   refreshToken: string | null;
   isAuthenticated: boolean;
   isLoading: boolean;
@@ -13,9 +12,9 @@ interface AuthState {
 
 const initialState: AuthState = {
   user: null,
-  token: localStorage.getItem('token'),
+  accessToken: localStorage.getItem('accessToken'),
   refreshToken: localStorage.getItem('refreshToken'),
-  isAuthenticated: !!localStorage.getItem('token'),
+  isAuthenticated: !!localStorage.getItem('accessToken'),
   isLoading: false,
   error: null,
 };
@@ -25,13 +24,15 @@ export const loginAsync = createAsyncThunk(
   'auth/login',
   async (credentials: LoginRequest, { rejectWithValue }) => {
     try {
-      const response = await authApi.login(credentials);
+      const response = await authService.login(credentials);
 
       // Store tokens in localStorage
-      localStorage.setItem('token', response.token);
-      localStorage.setItem('refreshToken', response.refreshToken);
+      localStorage.setItem('accessToken', response.data.accessToken);
+      if (response.data.refreshToken) {
+        localStorage.setItem('refreshToken', response.data.refreshToken);
+      }
 
-      return response;
+      return response.data;
     } catch (error: any) {
       return rejectWithValue(error.message || 'Login failed');
     }
@@ -42,13 +43,8 @@ export const registerAsync = createAsyncThunk(
   'auth/register',
   async (userData: RegisterRequest, { rejectWithValue }) => {
     try {
-      const response = await authApi.register(userData);
-
-      // Store tokens in localStorage
-      localStorage.setItem('token', response.token);
-      localStorage.setItem('refreshToken', response.refreshToken);
-
-      return response;
+      const response = await authService.register(userData);
+      return response.data.user;
     } catch (error: any) {
       return rejectWithValue(error.message || 'Registration failed');
     }
@@ -59,13 +55,13 @@ export const logoutAsync = createAsyncThunk(
   'auth/logout',
   async (_, { rejectWithValue }) => {
     try {
-      await authApi.logout();
+      await authService.logout();
     } catch (error: any) {
       // Continue with logout even if API call fails
       console.warn('Logout API call failed:', error);
     } finally {
       // Clear tokens from localStorage
-      localStorage.removeItem('token');
+      localStorage.removeItem('accessToken');
       localStorage.removeItem('refreshToken');
     }
   }
@@ -82,16 +78,18 @@ export const refreshTokenAsync = createAsyncThunk(
         throw new Error('No refresh token available');
       }
 
-      const response = await authApi.refreshToken(refreshToken);
+      const response = await authService.refreshToken(refreshToken);
 
       // Update tokens in localStorage
-      localStorage.setItem('token', response.token);
-      localStorage.setItem('refreshToken', response.refreshToken);
+      localStorage.setItem('accessToken', response.data.accessToken);
+      if (response.data.refreshToken) {
+        localStorage.setItem('refreshToken', response.data.refreshToken);
+      }
 
-      return response;
+      return response.data;
     } catch (error: any) {
       // Clear invalid tokens
-      localStorage.removeItem('token');
+      localStorage.removeItem('accessToken');
       localStorage.removeItem('refreshToken');
       return rejectWithValue(error.message || 'Token refresh failed');
     }
@@ -102,8 +100,8 @@ export const getCurrentUserAsync = createAsyncThunk(
   'auth/getCurrentUser',
   async (_, { rejectWithValue }) => {
     try {
-      const user = await authApi.getCurrentUser();
-      return user;
+      const response = await authService.getCurrentUser();
+      return response.data.user;
     } catch (error: any) {
       return rejectWithValue(error.message || 'Failed to get user info');
     }
@@ -122,11 +120,11 @@ const authSlice = createSlice({
     },
     // Initialize auth state from localStorage
     initializeAuth: (state) => {
-      const token = localStorage.getItem('token');
+      const accessToken = localStorage.getItem('accessToken');
       const refreshToken = localStorage.getItem('refreshToken');
 
-      if (token) {
-        state.token = token;
+      if (accessToken) {
+        state.accessToken = accessToken;
         state.refreshToken = refreshToken;
         state.isAuthenticated = true;
       }
@@ -139,11 +137,11 @@ const authSlice = createSlice({
         state.isLoading = true;
         state.error = null;
       })
-      .addCase(loginAsync.fulfilled, (state, action: PayloadAction<AuthResponse>) => {
+      .addCase(loginAsync.fulfilled, (state, action: PayloadAction<AuthResponse['data']>) => {
         state.isLoading = false;
         state.user = action.payload.user;
-        state.token = action.payload.token;
-        state.refreshToken = action.payload.refreshToken;
+        state.accessToken = action.payload.accessToken;
+        state.refreshToken = action.payload.refreshToken || null;
         state.isAuthenticated = true;
         state.error = null;
       })
@@ -152,7 +150,7 @@ const authSlice = createSlice({
         state.error = action.payload as string;
         state.isAuthenticated = false;
         state.user = null;
-        state.token = null;
+        state.accessToken = null;
         state.refreshToken = null;
       })
 
@@ -161,12 +159,10 @@ const authSlice = createSlice({
         state.isLoading = true;
         state.error = null;
       })
-      .addCase(registerAsync.fulfilled, (state, action: PayloadAction<AuthResponse>) => {
+      .addCase(registerAsync.fulfilled, (state, action: PayloadAction<User>) => {
         state.isLoading = false;
-        state.user = action.payload.user;
-        state.token = action.payload.token;
-        state.refreshToken = action.payload.refreshToken;
-        state.isAuthenticated = true;
+        state.user = action.payload;
+        // Registration doesn't return tokens, user needs to login separately
         state.error = null;
       })
       .addCase(registerAsync.rejected, (state, action) => {
@@ -174,14 +170,14 @@ const authSlice = createSlice({
         state.error = action.payload as string;
         state.isAuthenticated = false;
         state.user = null;
-        state.token = null;
+        state.accessToken = null;
         state.refreshToken = null;
       })
 
       // Logout
       .addCase(logoutAsync.fulfilled, (state) => {
         state.user = null;
-        state.token = null;
+        state.accessToken = null;
         state.refreshToken = null;
         state.isAuthenticated = false;
         state.isLoading = false;
@@ -192,17 +188,17 @@ const authSlice = createSlice({
       .addCase(refreshTokenAsync.pending, (state) => {
         state.isLoading = true;
       })
-      .addCase(refreshTokenAsync.fulfilled, (state, action: PayloadAction<AuthResponse>) => {
+      .addCase(refreshTokenAsync.fulfilled, (state, action: PayloadAction<AuthResponse['data']>) => {
         state.isLoading = false;
-        state.token = action.payload.token;
-        state.refreshToken = action.payload.refreshToken;
+        state.accessToken = action.payload.accessToken;
+        state.refreshToken = action.payload.refreshToken || null;
         state.error = null;
       })
       .addCase(refreshTokenAsync.rejected, (state, action) => {
         state.isLoading = false;
         state.error = action.payload as string;
         state.user = null;
-        state.token = null;
+        state.accessToken = null;
         state.refreshToken = null;
         state.isAuthenticated = false;
       })
@@ -222,10 +218,10 @@ const authSlice = createSlice({
         // If we can't get user info, we might need to re-authenticate
         if (state.error?.includes('401') || state.error?.includes('Unauthorized')) {
           state.user = null;
-          state.token = null;
+          state.accessToken = null;
           state.refreshToken = null;
           state.isAuthenticated = false;
-          localStorage.removeItem('token');
+          localStorage.removeItem('accessToken');
           localStorage.removeItem('refreshToken');
         }
       });

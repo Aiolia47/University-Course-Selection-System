@@ -7,6 +7,10 @@ export enum AuditAction {
   DELETE = 'delete',
   LOGIN = 'login',
   LOGOUT = 'logout',
+  USER_LOGIN = 'user_login',
+  USER_LOGIN_FAILED = 'user_login_failed',
+  USER_LOGOUT = 'user_logout',
+  USER_REGISTER = 'user_register',
   SELECT_COURSE = 'select_course',
   CANCEL_SELECTION = 'cancel_selection',
   CONFIRM_SELECTION = 'confirm_selection'

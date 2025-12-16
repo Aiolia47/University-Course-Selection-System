@@ -20,7 +20,7 @@ class ApiService {
     // Request interceptor
     this.client.interceptors.request.use(
       (config) => {
-        const token = localStorage.getItem('token');
+        const token = localStorage.getItem('accessToken');
 
         if (token) {
           config.headers.Authorization = `Bearer ${token}`;
@@ -53,10 +53,12 @@ class ApiService {
                 refreshToken,
               });
 
-              const { token: newToken, refreshToken: newRefreshToken } = response.data.data;
+              const { accessToken: newToken, refreshToken: newRefreshToken } = response.data.data;
 
-              localStorage.setItem('token', newToken);
-              localStorage.setItem('refreshToken', newRefreshToken);
+              localStorage.setItem('accessToken', newToken);
+              if (newRefreshToken) {
+                localStorage.setItem('refreshToken', newRefreshToken);
+              }
 
               // Retry the original request with new token
               originalRequest.headers.Authorization = `Bearer ${newToken}`;
@@ -64,7 +66,7 @@ class ApiService {
             }
           } catch (refreshError) {
             // Refresh failed, clear tokens and redirect to login
-            localStorage.removeItem('token');
+            localStorage.removeItem('accessToken');
             localStorage.removeItem('refreshToken');
 
             // Redirect to login page
