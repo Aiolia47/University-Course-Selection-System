@@ -14,9 +14,11 @@ export const validateDto = (dtoClass: any) => {
       });
 
       return res.status(400).json({
-        error: 'Validation Error',
-        message: errorMessages.join('; '),
-        details: errors
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: '输入数据验证失败',
+          details: errorMessages.join('; ')
+        }
       });
     }
 
@@ -38,9 +40,11 @@ export const validateQuery = (dtoClass: any) => {
       });
 
       return res.status(400).json({
-        error: 'Validation Error',
-        message: errorMessages.join('; '),
-        details: errors
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: '输入数据验证失败',
+          details: errorMessages.join('; ')
+        }
       });
     }
 

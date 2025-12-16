@@ -3,6 +3,7 @@ import { User, UserRole, UserStatus } from '../models/User';
 import { DatabaseService } from './databaseService';
 import bcrypt from 'bcryptjs';
 import { CreateUserDto, UpdateUserDto, ChangePasswordDto } from '../validators/user.validator';
+import { UserProfile } from '../models/UserProfile';
 
 export class UserService {
   private userRepository: Repository<User>;

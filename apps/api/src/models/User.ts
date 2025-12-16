@@ -1,7 +1,8 @@
-import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, OneToMany, Index } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, OneToMany, OneToOne, Index } from 'typeorm';
 import { Selection } from './Selection';
 import { RolePermission } from './RolePermission';
 import { AuditLog } from './AuditLog';
+import { UserProfile } from './UserProfile';
 
 export enum UserRole {
   STUDENT = 'student',
@@ -65,4 +66,7 @@ export class User {
 
   @OneToMany(() => AuditLog, auditLog => auditLog.user)
   auditLogs: AuditLog[];
+
+  @OneToOne(() => UserProfile, profile => profile.user, { cascade: true })
+  profile: UserProfile;
 }

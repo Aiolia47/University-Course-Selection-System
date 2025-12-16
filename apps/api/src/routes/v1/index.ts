@@ -1,5 +1,6 @@
 import { Router } from 'express';
 import { healthRouter } from './health';
+import { authRouter } from './auth';
 
 export const v1Router = Router();
 
@@ -10,6 +11,7 @@ v1Router.get('/', (req, res) => {
     message: 'BMAD7 API v1',
     endpoints: {
       health: '/health',
+      auth: '/auth',
       // Add more endpoints as they are implemented
     },
   });
@@ -17,8 +19,8 @@ v1Router.get('/', (req, res) => {
 
 // Mount sub-routes
 v1Router.use('/health', healthRouter);
+v1Router.use('/auth', authRouter);
 
 // TODO: Add more routes as they are implemented
-// v1Router.use('/auth', authRouter);
 // v1Router.use('/users', userRouter);
 // v1Router.use('/courses', courseRouter);
