@@ -2,6 +2,7 @@ import { Router } from 'express';
 import { healthRouter } from './health';
 import { authRouter } from './auth';
 import permissionRoutes from './permissions';
+import { coursesRouter } from './courses';
 
 export const v1Router = Router();
 
@@ -14,6 +15,7 @@ v1Router.get('/', (req, res) => {
       health: '/health',
       auth: '/auth',
       permissions: '/permissions',
+      courses: '/courses',
       // Add more endpoints as they are implemented
     },
   });
@@ -23,7 +25,7 @@ v1Router.get('/', (req, res) => {
 v1Router.use('/health', healthRouter);
 v1Router.use('/auth', authRouter);
 v1Router.use('/permissions', permissionRoutes);
+v1Router.use('/courses', coursesRouter);
 
 // TODO: Add more routes as they are implemented
 // v1Router.use('/users', userRouter);
-// v1Router.use('/courses', courseRouter);

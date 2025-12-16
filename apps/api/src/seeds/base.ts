@@ -2,6 +2,8 @@ import { DataSource } from 'typeorm';
 import bcrypt from 'bcryptjs';
 import { User, UserRole, UserStatus } from '../models/User';
 import { Course, CourseStatus } from '../models/Course';
+import { CourseSchedule, DayOfWeek } from '../models/CourseSchedule';
+import { CoursePrerequisite } from '../models/CoursePrerequisite';
 import { Permission } from '../models/Permission';
 import { RolePermission } from '../models/RolePermission';
 
@@ -25,6 +27,12 @@ export class BaseSeed {
 
     // Create sample courses
     await this.createSampleCourses();
+
+    // Create course schedules
+    await this.createCourseSchedules();
+
+    // Create course prerequisites
+    await this.createCoursePrerequisites();
 
     console.log('Base seed completed successfully');
   }
@@ -80,6 +88,12 @@ export class BaseSeed {
         description: '删除课程',
         resource: 'course',
         action: 'delete',
+      },
+      {
+        name: 'course.manage',
+        description: '管理课程（创建、更新、删除）',
+        resource: 'course',
+        action: 'manage',
       },
       {
         name: 'selection.create',
@@ -381,6 +395,166 @@ export class BaseSeed {
       if (!existingCourse) {
         await courseRepository.save(courseRepository.create(courseData));
         console.log(`Created course: ${courseData.code} - ${courseData.name}`);
+      }
+    }
+  }
+
+  private async createCourseSchedules(): Promise<void> {
+    const courseRepository = this.dataSource.getRepository(Course);
+    const scheduleRepository = this.dataSource.getRepository(CourseSchedule);
+
+    const schedules = [
+      // CS101 - Monday, Wednesday, Friday 9:00-10:30
+      {
+        courseCode: 'CS101',
+        dayOfWeek: DayOfWeek.MONDAY,
+        startTime: '09:00',
+        endTime: '10:30',
+        location: '教学楼A101',
+        weeks: Array.from({ length: 16 }, (_, i) => i + 1),
+      },
+      {
+        courseCode: 'CS101',
+        dayOfWeek: DayOfWeek.WEDNESDAY,
+        startTime: '09:00',
+        endTime: '10:30',
+        location: '教学楼A101',
+        weeks: Array.from({ length: 16 }, (_, i) => i + 1),
+      },
+      {
+        courseCode: 'CS101',
+        dayOfWeek: DayOfWeek.FRIDAY,
+        startTime: '09:00',
+        endTime: '10:30',
+        location: '教学楼A101',
+        weeks: Array.from({ length: 16 }, (_, i) => i + 1),
+      },
+      // CS201 - Tuesday, Thursday 14:00-15:30
+      {
+        courseCode: 'CS201',
+        dayOfWeek: DayOfWeek.TUESDAY,
+        startTime: '14:00',
+        endTime: '15:30',
+        location: '教学楼B201',
+        weeks: Array.from({ length: 16 }, (_, i) => i + 1),
+      },
+      {
+        courseCode: 'CS201',
+        dayOfWeek: DayOfWeek.THURSDAY,
+        startTime: '14:00',
+        endTime: '15:30',
+        location: '教学楼B201',
+        weeks: Array.from({ length: 16 }, (_, i) => i + 1),
+      },
+      // CS301 - Monday, Wednesday 10:45-12:15
+      {
+        courseCode: 'CS301',
+        dayOfWeek: DayOfWeek.MONDAY,
+        startTime: '10:45',
+        endTime: '12:15',
+        location: '教学楼C301',
+        weeks: Array.from({ length: 16 }, (_, i) => i + 1),
+      },
+      {
+        courseCode: 'CS301',
+        dayOfWeek: DayOfWeek.WEDNESDAY,
+        startTime: '10:45',
+        endTime: '12:15',
+        location: '教学楼C301',
+        weeks: Array.from({ length: 16 }, (_, i) => i + 1),
+      },
+      // CS401 - Tuesday, Thursday 10:45-12:15
+      {
+        courseCode: 'CS401',
+        dayOfWeek: DayOfWeek.TUESDAY,
+        startTime: '10:45',
+        endTime: '12:15',
+        location: '教学楼D401',
+        weeks: Array.from({ length: 16 }, (_, i) => i + 1),
+      },
+      {
+        courseCode: 'CS401',
+        dayOfWeek: DayOfWeek.THURSDAY,
+        startTime: '10:45',
+        endTime: '12:15',
+        location: '教学楼D401',
+        weeks: Array.from({ length: 16 }, (_, i) => i + 1),
+      },
+    ];
+
+    for (const scheduleData of schedules) {
+      const course = await courseRepository.findOne({
+        where: { code: scheduleData.courseCode },
+      });
+
+      if (course) {
+        const existingSchedule = await scheduleRepository.findOne({
+          where: {
+            courseId: course.id,
+            dayOfWeek: scheduleData.dayOfWeek,
+            startTime: scheduleData.startTime,
+          },
+        });
+
+        if (!existingSchedule) {
+          await scheduleRepository.save(
+            scheduleRepository.create({
+              courseId: course.id,
+              dayOfWeek: scheduleData.dayOfWeek,
+              startTime: scheduleData.startTime,
+              endTime: scheduleData.endTime,
+              location: scheduleData.location,
+              weeks: scheduleData.weeks,
+            })
+          );
+          console.log(`Created schedule for ${scheduleData.courseCode}`);
+        }
+      }
+    }
+  }
+
+  private async createCoursePrerequisites(): Promise<void> {
+    const courseRepository = this.dataSource.getRepository(Course);
+    const prerequisiteRepository = this.dataSource.getRepository(CoursePrerequisite);
+
+    const prerequisites = [
+      { courseCode: 'CS201', prerequisiteCode: 'CS101' }, // Data Structures requires Intro to CS
+      { courseCode: 'CS301', prerequisiteCode: 'CS201' }, // Database requires Data Structures
+      { courseCode: 'CS302', prerequisiteCode: 'CS201' }, // Software Engineering requires Data Structures
+      { courseCode: 'CS401', prerequisiteCode: 'CS201' }, // AI requires Data Structures
+      { courseCode: 'CS402', prerequisiteCode: 'CS401' }, // Machine Learning requires AI
+      { courseCode: 'CS402', prerequisiteCode: 'MATH201' }, // Machine Learning requires Linear Algebra
+      { courseCode: 'CS501', prerequisiteCode: 'CS201' }, // Computer Networks requires Data Structures
+      { courseCode: 'CS502', prerequisiteCode: 'CS201' }, // Operating Systems requires Data Structures
+      { courseCode: 'MATH201', prerequisiteCode: 'MATH101' }, // Linear Algebra requires Calculus
+    ];
+
+    for (const prereqData of prerequisites) {
+      const course = await courseRepository.findOne({
+        where: { code: prereqData.courseCode },
+      });
+
+      const prerequisiteCourse = await courseRepository.findOne({
+        where: { code: prereqData.prerequisiteCode },
+      });
+
+      if (course && prerequisiteCourse) {
+        const existingPrerequisite = await prerequisiteRepository.findOne({
+          where: {
+            courseId: course.id,
+            prerequisiteCourseId: prerequisiteCourse.id,
+          },
+        });
+
+        if (!existingPrerequisite) {
+          await prerequisiteRepository.save(
+            prerequisiteRepository.create({
+              courseId: course.id,
+              prerequisiteCourseId: prerequisiteCourse.id,
+            })
+          );
+          console.log(`Created prerequisite: ${prereqData.courseCode} requires ${prereqData.prerequisiteCode}`);
+        }
       }
     }
   }

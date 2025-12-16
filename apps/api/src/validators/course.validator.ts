@@ -1,5 +1,56 @@
-import { IsString, IsNumber, IsEnum, IsOptional, Length, Min, Max, Matches } from 'class-validator';
-import { CourseStatus } from '../models/Course';
+import {
+  IsString,
+  IsNumber,
+  IsEnum,
+  IsOptional,
+  Length,
+  Min,
+  Max,
+  Matches,
+  IsArray,
+  IsInt,
+  ArrayNotEmpty,
+  ValidateNested
+} from 'class-validator';
+import { Type, Transform } from 'class-transformer';
+import { CourseStatus, DayOfWeek } from '../models';
+
+export class CourseScheduleDto {
+  @IsArray()
+  @IsEnum(DayOfWeek, { each: true, message: '星期必须是有效的枚举值' })
+  dayOfWeek: DayOfWeek[];
+
+  @IsString()
+  @Matches(/^([01]?[0-9]|2[0-3]):[0-5][0-9]$/, { message: '开始时间格式必须为HH:MM' })
+  startTime: string;
+
+  @IsString()
+  @Matches(/^([01]?[0-9]|2[0-3]):[0-5][0-9]$/, { message: '结束时间格式必须为HH:MM' })
+  endTime: string;
+
+  @IsString()
+  @Length(1, 100, { message: '地点长度必须在1-100个字符之间' })
+  location: string;
+
+  @IsArray()
+  @IsInt({ each: true, message: '周数必须是整数' })
+  @Min(1, { each: true, message: '周数最小为1' })
+  @Max(16, { each: true, message: '周数最大为16' })
+  weeks: number[];
+}
+
+export class BatchCourseOperationDto {
+  @IsEnum(['create', 'update', 'delete'], { message: '批量操作必须是create、update或delete' })
+  operation: 'create' | 'update' | 'delete';
+
+  @IsOptional()
+  @IsArray()
+  courses?: CreateCourseDto[];
+
+  @IsOptional()
+  @IsArray()
+  courseIds?: string[];
+}
 
 export class CreateCourseDto {
   @IsString()
@@ -30,8 +81,20 @@ export class CreateCourseDto {
   @Max(1000, { message: '容量最多为1000' })
   capacity: number;
 
+  @IsOptional()
   @IsEnum(CourseStatus, { message: '课程状态必须是draft、published、cancelled或completed' })
-  status: CourseStatus;
+  status?: CourseStatus;
+
+  @IsOptional()
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => CourseScheduleDto)
+  schedules?: CourseScheduleDto[];
+
+  @IsOptional()
+  @IsArray()
+  @IsString({ each: true, message: '先修课程代码必须是字符串' })
+  prerequisites?: string[];
 }
 
 export class UpdateCourseDto {
@@ -71,6 +134,17 @@ export class UpdateCourseDto {
   @IsOptional()
   @IsEnum(CourseStatus, { message: '课程状态必须是draft、published、cancelled或completed' })
   status?: CourseStatus;
+
+  @IsOptional()
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => CourseScheduleDto)
+  schedules?: CourseScheduleDto[];
+
+  @IsOptional()
+  @IsArray()
+  @IsString({ each: true, message: '先修课程代码必须是字符串' })
+  prerequisites?: string[];
 }
 
 export class QueryCoursesDto {
@@ -108,4 +182,12 @@ export class QueryCoursesDto {
   @Min(1, { message: '每页数量最少为1' })
   @Max(100, { message: '每页数量最多为100' })
   limit?: number;
+
+  @IsOptional()
+  @IsEnum(['code', 'name', 'teacher', 'credits', 'createdAt', 'updatedAt'], { message: '无效的排序字段' })
+  sortBy?: 'code' | 'name' | 'teacher' | 'credits' | 'createdAt' | 'updatedAt';
+
+  @IsOptional()
+  @IsEnum(['ASC', 'DESC'], { message: '排序方向必须是ASC或DESC' })
+  sortOrder?: 'ASC' | 'DESC';
 }

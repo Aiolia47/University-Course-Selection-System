@@ -1,5 +1,7 @@
 import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, OneToMany, Index } from 'typeorm';
 import { Selection } from './Selection';
+import { CourseSchedule } from './CourseSchedule';
+import { CoursePrerequisite } from './CoursePrerequisite';
 
 export enum CourseStatus {
   DRAFT = 'draft',
@@ -54,4 +56,10 @@ export class Course {
   // Relations
   @OneToMany(() => Selection, selection => selection.course)
   selections: Selection[];
+
+  @OneToMany(() => CourseSchedule, schedule => schedule.course)
+  schedules: CourseSchedule[];
+
+  @OneToMany(() => CoursePrerequisite, prerequisite => prerequisite.course)
+  prerequisites: CoursePrerequisite[];
 }

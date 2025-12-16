@@ -1,0 +1,78 @@
+# <!-- Powered by BMAD™ Core -->
+# Quality Gate Decision for Story 2.1: Course Data Model and CRUD API
+
+# Required fields (keep these first)
+schema: 1
+story: "2.1"
+story_title: "课程数据模型和CRUD API"
+gate: "CONCERNS"
+status_reason: "Comprehensive implementation with minor security concerns and missing edge case validations"
+reviewer: "Quinn (Test Architect)"
+updated: "2025-01-16T00:00:00Z"
+
+# Always present but only active when WAIVED
+waiver: { active: false }
+
+# Issues (if any) - Use fixed severity: low | medium | high
+top_issues:
+  - id: "SEC-001"
+    severity: medium
+    finding: "Missing rate limiting on batch operations endpoint"
+    suggested_action: "Add stricter rate limiting for batch operations (currently 20 per 15min)"
+    refs: ["routes/v1/courses.ts:60-65"]
+  - id: "VAL-001"
+    severity: medium
+    finding: "No circular prerequisite detection in course creation"
+    suggested_action: "Add validation to prevent circular prerequisite relationships"
+    refs: ["services/courseService.ts:61-76"]
+  - id: "VAL-002"
+    severity: low
+    finding: "No schedule conflict detection for overlapping times"
+    suggested_action: "Add validation to prevent schedule conflicts within the same course"
+    refs: ["services/courseService.ts:44-59"]
+
+# Risk summary (from risk-profile task if run)
+risk_summary:
+  totals: { critical: 0, high: 0, medium: 2, low: 1 }
+  recommendations:
+    must_fix: ["SEC-001", "VAL-001"]
+    monitor: ["VAL-002"]
+
+# Optional extended fields
+quality_score: 80
+expires: "2025-01-30T00:00:00Z"
+
+evidence:
+  tests_reviewed: 45
+  risks_identified: 3
+  trace:
+    ac_covered: [1, 2, 3, 4, 5, 6]
+    ac_gaps: []
+
+nfr_validation:
+  security:
+    status: CONCERNS
+    notes: "Authentication and authorization properly implemented, but batch operations need stricter rate limiting. SQL injection protection is adequate with parameterized queries."
+  performance:
+    status: PASS
+    notes: "Pagination implemented with proper limits. Batch operations have reasonable size limits."
+  reliability:
+    status: PASS
+    notes: "Transaction handling ensures data consistency. Proper error handling throughout."
+  maintainability:
+    status: PASS
+    notes: "Well-structured code with clear separation of concerns. Good use of TypeScript interfaces."
+
+recommendations:
+  immediate:  # Must fix before production
+    - action: "Add stricter rate limiting for batch operations endpoint"
+      refs: ["routes/v1/courses.ts:60-65"]
+    - action: "Implement circular prerequisite detection"
+      refs: ["services/courseService.ts:61-76"]
+  future:  # Can be addressed later
+    - action: "Add schedule conflict detection for overlapping time slots"
+      refs: ["services/courseService.ts:44-59"]
+    - action: "Consider adding soft delete for courses instead of hard delete"
+      refs: ["services/courseService.ts:232-250"]
+    - action: "Add test for circular prerequisites and schedule conflicts"
+      refs: ["tests/services/courseService.test.ts"]
