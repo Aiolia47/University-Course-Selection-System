@@ -1,6 +1,6 @@
 import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
-import { Course, CourseFilters, PaginatedResponse } from '@bmad7/shared';
-import { coursesApi } from '../api/coursesApi';
+import { Course, CourseFilters, PaginatedResponse } from '@/types/course';
+import courseService from '@/services/courseService';
 
 interface CoursesState {
   courses: Course[];
@@ -16,6 +16,9 @@ interface CoursesState {
   isDetailLoading: boolean;
   error: string | null;
   searchQuery: string;
+  favorites: string[];
+  compareList: string[];
+  isCompareMode: boolean;
 }
 
 const initialState: CoursesState = {
@@ -32,6 +35,9 @@ const initialState: CoursesState = {
   isDetailLoading: false,
   error: null,
   searchQuery: '',
+  favorites: [],
+  compareList: [],
+  isCompareMode: false,
 };
 
 // Async thunks
@@ -39,7 +45,7 @@ export const fetchCoursesAsync = createAsyncThunk(
   'courses/fetchCourses',
   async (params: { page?: number; limit?: number; filters?: CourseFilters }, { rejectWithValue }) => {
     try {
-      const response = await coursesApi.getCourses(params);
+      const response = await courseService.getCourses(params);
       return response;
     } catch (error: any) {
       return rejectWithValue(error.message || 'Failed to fetch courses');
@@ -51,7 +57,7 @@ export const fetchCourseByIdAsync = createAsyncThunk(
   'courses/fetchCourseById',
   async (courseId: string, { rejectWithValue }) => {
     try {
-      const course = await coursesApi.getCourseById(courseId);
+      const course = await courseService.getCourseById(courseId);
       return course;
     } catch (error: any) {
       return rejectWithValue(error.message || 'Failed to fetch course');
@@ -63,7 +69,7 @@ export const searchCoursesAsync = createAsyncThunk(
   'courses/searchCourses',
   async (params: { query: string; page?: number; limit?: number }, { rejectWithValue }) => {
     try {
-      const response = await coursesApi.searchCourses(params.query, params);
+      const response = await courseService.searchCourses(params.query, params);
       return { ...response, query: params.query };
     } catch (error: any) {
       return rejectWithValue(error.message || 'Failed to search courses');
@@ -104,6 +110,58 @@ const coursesSlice = createSlice({
       if (state.currentCourse?.id === action.payload.courseId) {
         state.currentCourse.enrolled = action.payload.enrolledCount;
       }
+    },
+    // Favorite management
+    toggleFavorite: (state, action: PayloadAction<string>) => {
+      const courseId = action.payload;
+      const index = state.favorites.indexOf(courseId);
+      if (index > -1) {
+        state.favorites.splice(index, 1);
+      } else {
+        state.favorites.push(courseId);
+      }
+      // Persist to localStorage
+      localStorage.setItem('favoriteCourses', JSON.stringify(state.favorites));
+    },
+    loadFavorites: (state, action: PayloadAction<string[]>) => {
+      state.favorites = action.payload;
+    },
+    // Compare list management
+    toggleCompare: (state, action: PayloadAction<string>) => {
+      const courseId = action.payload;
+      const index = state.compareList.indexOf(courseId);
+      if (index > -1) {
+        state.compareList.splice(index, 1);
+      } else {
+        if (state.compareList.length >= 3) {
+          // Don't add more than 3 courses to compare
+          return;
+        }
+        state.compareList.push(courseId);
+      }
+      // Persist to localStorage
+      localStorage.setItem('compareCourses', JSON.stringify(state.compareList));
+    },
+    removeFromCompare: (state, action: PayloadAction<string>) => {
+      const courseId = action.payload;
+      const index = state.compareList.indexOf(courseId);
+      if (index > -1) {
+        state.compareList.splice(index, 1);
+      }
+      // Persist to localStorage
+      localStorage.setItem('compareCourses', JSON.stringify(state.compareList));
+    },
+    clearCompareList: (state) => {
+      state.compareList = [];
+      state.isCompareMode = false;
+      // Clear from localStorage
+      localStorage.removeItem('compareCourses');
+    },
+    loadCompareList: (state, action: PayloadAction<string[]>) => {
+      state.compareList = action.payload;
+    },
+    setCompareMode: (state, action: PayloadAction<boolean>) => {
+      state.isCompareMode = action.payload;
     },
   },
   extraReducers: (builder) => {
@@ -177,6 +235,13 @@ export const {
   clearCurrentCourse,
   setPagination,
   updateCourseEnrollment,
+  toggleFavorite,
+  loadFavorites,
+  toggleCompare,
+  removeFromCompare,
+  clearCompareList,
+  loadCompareList,
+  setCompareMode,
 } = coursesSlice.actions;
 
 export default coursesSlice.reducer;

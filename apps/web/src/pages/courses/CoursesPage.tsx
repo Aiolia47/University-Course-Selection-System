@@ -1,1 +1,4 @@
-export const CoursesPage = () => <div>Courses Page</div>;
+import React from 'react';
+import CourseListPage from './CourseListPage';
+
+export const CoursesPage = () => <CourseListPage />;

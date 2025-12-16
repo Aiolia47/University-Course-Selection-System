@@ -1,0 +1,133 @@
+.course-card {
+  height: 100%;
+  transition: all 0.3s ease;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.course-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+}
+
+.course-card-full {
+  border: 2px solid #ff4d4f;
+  opacity: 0.8;
+}
+
+.course-card-almost-full {
+  border: 2px solid #fa8c16;
+}
+
+.course-card-cover {
+  position: relative;
+  height: 120px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.course-card-avatar {
+  background: rgba(255, 255, 255, 0.9);
+  color: #667eea;
+}
+
+.course-card-status {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  font-weight: 500;
+}
+
+.course-card-title {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.course-card-title .ant-typography {
+  margin-bottom: 0;
+}
+
+.course-card-code {
+  font-size: 12px;
+  font-weight: normal;
+}
+
+.course-card-content {
+  padding: 0;
+}
+
+.course-card-teacher,
+.course-card-info,
+.course-card-schedule,
+.course-card-location {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 14px;
+}
+
+.enrollment-full {
+  color: #ff4d4f;
+  font-weight: 600;
+}
+
+.enrollment-almost-full {
+  color: #fa8c16;
+  font-weight: 600;
+}
+
+.course-card-description {
+  margin: 8px 0 0 0;
+  font-size: 13px;
+  line-height: 1.5;
+  color: #666;
+}
+
+.course-card .ant-card-actions {
+  background: #fafafa;
+  border-top: 1px solid #f0f0f0;
+}
+
+.course-card .ant-card-actions li {
+  padding: 12px 0;
+}
+
+.course-card .ant-card-actions li:hover {
+  background: #f0f0f0;
+}
+
+.course-card .ant-card-actions .anticon {
+  font-size: 16px;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .course-card-cover {
+    height: 100px;
+  }
+
+  .course-card-avatar {
+    size: 48px;
+  }
+
+  .course-card-title {
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .course-card-code {
+    font-size: 11px;
+  }
+
+  .course-card-content > .ant-space {
+    gap: 8px !important;
+  }
+
+  .course-card-description {
+    font-size: 12px;
+  }
+}
