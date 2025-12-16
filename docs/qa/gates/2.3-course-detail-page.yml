@@ -1,0 +1,77 @@
+# <!-- Powered by BMAD™ Core -->
+schema: 1
+story: "2.3"
+story_title: "Course Detail Page"
+gate: CONCERNS
+status_reason: "Implementation is complete but lacks E2E tests and has some mock data that should be replaced with real API integration"
+reviewer: "Quinn (Test Architect)"
+updated: "2025-01-16T00:00:00Z"
+
+# Always present but only active when WAIVED
+waiver: { active: false }
+
+# Issues (if any)
+top_issues:
+  - id: "TEST-001"
+    severity: medium
+    finding: "Missing E2E tests for critical user flows"
+    suggested_action: "Add E2E tests for course detail page including selection flow"
+    suggested_owner: "dev"
+  - id: "DATA-001"
+    severity: medium
+    finding: "Teacher and evaluation components use mock data instead of real API"
+    suggested_action: "Implement real API endpoints for teacher information and course evaluations"
+    suggested_owner: "dev"
+  - id: "PERF-001"
+    severity: low
+    finding: "No lazy loading implemented for related courses component"
+    suggested_action: "Consider implementing lazy loading for better performance"
+    suggested_owner: "dev"
+
+# Risk summary (not from risk-profile task)
+risk_summary:
+  totals: { critical: 0, high: 0, medium: 2, low: 1 }
+  recommendations:
+    must_fix: ["Add E2E tests", "Replace mock data with real API"]
+    monitor: ["Performance optimization opportunities"]
+
+# Extended fields
+quality_score: 80
+expires: "2025-01-30T00:00:00Z"
+
+evidence:
+  tests_reviewed: 3
+  risks_identified: 3
+  trace:
+    ac_covered: [1, 2, 3, 4, 5, 6]
+    ac_gaps: []
+
+nfr_validation:
+  security: {
+    status: PASS,
+    notes: "No security issues found. Authentication checks in place for API calls"
+  }
+  performance: {
+    status: CONCERNS,
+    notes: "Page load optimization present but could benefit from lazy loading for related courses"
+  }
+  reliability: {
+    status: PASS,
+    notes: "Good error handling and retry mechanisms implemented"
+  }
+  maintainability: {
+    status: PASS,
+    notes: "Well-structured components with clear separation of concerns"
+  }
+
+recommendations:
+  immediate: # Must fix before production
+    - action: "Add E2E tests for course selection flow"
+      refs: ["tests/e2e/"]
+    - action: "Implement real API endpoints for teacher data"
+      refs: ["apps/web/src/components/courses/CourseDetail/TeacherInfo.tsx"]
+  future: # Can be addressed later
+    - action: "Consider implementing virtual scrolling for long evaluation lists"
+      refs: ["apps/web/src/components/courses/CourseDetail/CourseEvaluation.tsx"]
+    - action: "Add caching strategy for frequently accessed course data"
+      refs: ["apps/web/src/services/courseService.ts"]

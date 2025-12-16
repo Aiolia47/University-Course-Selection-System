@@ -1,0 +1,81 @@
+# <!-- Powered by BMAD™ Core -->
+template:
+  id: qa-gate-template-v1
+  name: Quality Gate Decision
+  version: 1.0
+  output:
+    format: yaml
+    filename: docs/qa/gates/2.3.course-detail-page.yml
+    title: "Quality Gate: 2.3"
+
+# Required fields (keep these first)
+schema: 1
+story: "2.3"
+story_title: "课程详情页面"
+gate: "CONCERNS"
+status_reason: "Implementation meets all functional requirements but has minor test coverage gaps and performance optimization opportunities"
+reviewer: "Quinn (Test Architect)"
+updated: "2025-12-16T08:00:00Z"
+
+# Always present but only active when WAIVED
+waiver: { active: false }
+
+# Issues (if any) - Use fixed severity: low | medium | high
+top_issues:
+  - id: "PERF-001"
+    severity: low
+    finding: "RelatedCourses component could benefit from lazy loading"
+    suggested_action: "Implement React.lazy() or intersection observer for RelatedCourses"
+  - id: "TEST-001"
+    severity: low
+    finding: "Missing E2E tests for critical user flows"
+    suggested_action: "Add Playwright tests for course selection and navigation flows"
+  - id: "DATA-001"
+    severity: low
+    finding: "TeacherInfo and CourseEvaluation using mock data"
+    suggested_action: "Replace mock data with real API calls"
+
+# Risk summary (from risk-profile task if run)
+risk_summary:
+  totals: { critical: 0, high: 0, medium: 0, low: 0 }
+  recommendations:
+    must_fix: []
+    monitor: []
+
+# ============ Optional Extended Fields ============
+quality_score: 80
+expires: "2025-12-30T08:00:00Z"
+
+evidence:
+  tests_reviewed: 25
+  risks_identified: 3
+  trace:
+    ac_covered: [1, 2, 3, 4, 5, 6]
+    ac_gaps: []
+
+nfr_validation:
+  security: { status: PASS, notes: "No security vulnerabilities found" }
+  performance: { status: CONCERNS, notes: "Could optimize RelatedCourses lazy loading" }
+  reliability: { status: PASS, notes: "Good error handling and retry mechanisms" }
+  maintainability: { status: PASS, notes: "Well-structured code with clear separation of concerns" }
+
+history:
+  - at: "2025-01-16T00:00:00Z"
+    gate: CONCERNS
+    note: "Initial review - missing E2E tests and some optimizations"
+  - at: "2025-12-16T08:00:00Z"
+    gate: CONCERNS
+    note: "Comprehensive review - all ACs met but minor improvements needed"
+
+recommendations:
+  immediate:  # Must fix before production
+    []
+  future:  # Can be addressed later
+    - action: "Implement lazy loading for RelatedCourses component"
+      refs: ["components/courses/CourseDetail/RelatedCourses.tsx"]
+    - action: "Add E2E tests for critical user flows"
+      refs: ["tests/e2e/"]
+    - action: "Replace mock data with real API integration"
+      refs: ["components/courses/CourseDetail/TeacherInfo.tsx", "components/courses/CourseDetail/CourseEvaluation.tsx"]
+    - action: "Add performance monitoring for page load times"
+      refs: ["components/courses/CourseDetail/CourseDetail.tsx"]

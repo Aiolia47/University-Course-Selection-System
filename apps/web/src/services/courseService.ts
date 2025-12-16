@@ -32,11 +32,97 @@ export class CourseService {
   }
 
   /**
-   * Get course by ID
+   * Get course by ID with caching
    */
   async getCourseById(courseId: string): Promise<Course> {
+    // Check cache first
+    const cachedCourse = await this.getCachedCourseById(courseId);
+    if (cachedCourse) {
+      return cachedCourse;
+    }
+
     const response = await apiService.get(`/courses/${courseId}`);
-    return response.data;
+    const course = response.data;
+
+    // Cache the course
+    await this.cacheCourseById(courseId, course);
+
+    return course;
+  }
+
+  /**
+   * Cache a specific course by ID
+   */
+  async cacheCourseById(courseId: string, course: Course): Promise<void> {
+    if ('indexedDB' in window) {
+      const request = indexedDB.open('CourseDetailCacheDB', 1);
+
+      request.onupgradeneeded = (event) => {
+        const db = (event.target as IDBOpenDBRequest).result;
+        if (!db.objectStoreNames.contains('courseDetails')) {
+          const store = db.createObjectStore('courseDetails', { keyPath: 'id' });
+          store.createIndex('cachedAt', 'cachedAt', { unique: false });
+        }
+      };
+
+      request.onsuccess = (event) => {
+        const db = (event.target as IDBOpenDBRequest).result;
+        const transaction = db.transaction(['courseDetails'], 'readwrite');
+        const store = transaction.objectStore('courseDetails');
+
+        // Add cache timestamp
+        const courseWithTimestamp = {
+          ...course,
+          cachedAt: Date.now()
+        };
+
+        store.put(courseWithTimestamp);
+      };
+    }
+  }
+
+  /**
+   * Get cached course by ID
+   */
+  async getCachedCourseById(courseId: string): Promise<Course | null> {
+    return new Promise((resolve) => {
+      if (!('indexedDB' in window)) {
+        resolve(null);
+        return;
+      }
+
+      const request = indexedDB.open('CourseDetailCacheDB', 1);
+
+      request.onsuccess = (event) => {
+        const db = (event.target as IDBOpenDBRequest).result;
+        const transaction = db.transaction(['courseDetails'], 'readonly');
+        const store = transaction.objectStore('courseDetails');
+        const getRequest = store.get(courseId);
+
+        getRequest.onsuccess = () => {
+          const cachedData = getRequest.result;
+          if (cachedData) {
+            // Check if cache is still valid (5 minutes)
+            const cacheValidTime = 5 * 60 * 1000; // 5 minutes
+            if (Date.now() - cachedData.cachedAt < cacheValidTime) {
+              // Remove cache timestamp before returning
+              const { cachedAt, ...course } = cachedData;
+              resolve(course);
+              return;
+            }
+          }
+          resolve(null);
+        };
+
+        getRequest.onerror = () => {
+          resolve(null);
+        };
+      };
+
+      request.onerror = () => {
+        resolve(null);
+      };
+    });
   }
 
   /**
@@ -203,6 +289,51 @@ export class CourseService {
         resolve(null);
       };
     });
+  }
+
+  /**
+   * Clear outdated course detail cache
+   */
+  async clearOutdatedCache(): Promise<void> {
+    if (!('indexedDB' in window)) {
+      return;
+    }
+
+    const request = indexedDB.open('CourseDetailCacheDB', 1);
+
+    request.onsuccess = (event) => {
+      const db = (event.target as IDBOpenDBRequest).result;
+      const transaction = db.transaction(['courseDetails'], 'readwrite');
+      const store = transaction.objectStore('courseDetails');
+      const index = store.index('cachedAt');
+
+      const now = Date.now();
+      const maxAge = 30 * 60 * 1000; // 30 minutes
+
+      // Get all entries older than maxAge
+      const range = IDBKeyRange.upperBound(now - maxAge);
+      const getRequest = index.getAll(range);
+
+      getRequest.onsuccess = () => {
+        const outdatedEntries = getRequest.result;
+        outdatedEntries.forEach((entry: any) => {
+          store.delete(entry.id);
+        });
+      };
+    };
+  }
+
+  /**
+   * Refresh course data (bypass cache)
+   */
+  async refreshCourse(courseId: string): Promise<Course> {
+    const response = await apiService.get(`/courses/${courseId}`);
+    const course = response.data;
+
+    // Update cache with fresh data
+    await this.cacheCourseById(courseId, course);
+
+    return course;
   }
 }
 
