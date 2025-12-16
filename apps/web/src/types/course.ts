@@ -101,3 +101,70 @@ export interface CourseListState {
   favorites: string[];
   compareList: string[];
 }
+
+// Admin types
+export interface CreateCourseRequest {
+  code: string;
+  name: string;
+  description: string;
+  credits: number;
+  teacher: string;
+  capacity: number;
+  schedules: CourseSchedule[];
+  prerequisites: string[];
+}
+
+export interface UpdateCourseRequest {
+  name?: string;
+  description?: string;
+  credits?: number;
+  teacher?: string;
+  capacity?: number;
+  status?: CourseStatus;
+  schedules?: CourseSchedule[];
+  prerequisites?: string[];
+}
+
+export interface BatchOperationRequest {
+  operation: 'publish' | 'unpublish' | 'cancel' | 'delete';
+  courseIds: string[];
+}
+
+export interface ImportResult {
+  success: number;
+  failed: number;
+  errors: Array<{
+    row: number;
+    field: string;
+    message: string;
+    data: any;
+  }>;
+}
+
+export interface OperationHistory {
+  id: string;
+  courseId: string;
+  operationType: 'CREATE' | 'UPDATE' | 'DELETE' | 'BATCH_OPERATION';
+  operation: string;
+  performedBy: string;
+  performedAt: string;
+  previousData?: any;
+  newData?: any;
+  changes?: Array<{
+    field: string;
+    oldValue: any;
+    newValue: any;
+  }>;
+  status: 'SUCCESS' | 'FAILED';
+  errorMessage?: string;
+}
+
+export interface OperationHistoryQuery {
+  page?: number;
+  limit?: number;
+  search?: string;
+  operation?: string;
+  status?: string;
+  startDate?: string;
+  endDate?: string;
+}

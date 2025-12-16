@@ -1,5 +1,16 @@
 import { apiService } from './api';
-import { Course, CourseFilters, PaginatedResponse, CourseQueryParams } from '@/types/course';
+import {
+  Course,
+  CourseFilters,
+  PaginatedResponse,
+  CourseQueryParams,
+  CreateCourseRequest,
+  UpdateCourseRequest,
+  BatchOperationRequest,
+  ImportResult,
+  OperationHistory,
+  OperationHistoryQuery
+} from '@/types/course';
 
 export class CourseService {
   /**
@@ -334,6 +345,127 @@ export class CourseService {
     await this.cacheCourseById(courseId, course);
 
     return course;
+  }
+
+  // ========== ADMIN METHODS ==========
+
+  /**
+   * Create a new course (Admin only)
+   */
+  async createCourse(courseData: CreateCourseRequest): Promise<Course> {
+    const response = await apiService.post('/courses', courseData);
+    return response.data;
+  }
+
+  /**
+   * Update an existing course (Admin only)
+   */
+  async updateCourse(courseId: string, courseData: UpdateCourseRequest): Promise<Course> {
+    const response = await apiService.put(`/courses/${courseId}`, courseData);
+    return response.data;
+  }
+
+  /**
+   * Delete a course (Admin only)
+   */
+  async deleteCourse(courseId: string): Promise<void> {
+    await apiService.delete(`/courses/${courseId}`);
+  }
+
+  /**
+   * Perform batch operations on courses (Admin only)
+   */
+  async batchOperation(request: BatchOperationRequest): Promise<any> {
+    const response = await apiService.post('/courses/batch', request);
+    return response.data;
+  }
+
+  /**
+   * Import courses from file (Admin only)
+   */
+  async importCourses(formData: FormData): Promise<ImportResult> {
+    const response = await apiService.post('/courses/import', formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    });
+    return response.data;
+  }
+
+  /**
+   * Download import template (Admin only)
+   */
+  async downloadTemplate(format: 'csv' | 'excel'): Promise<Blob> {
+    const client = apiService.getClient();
+    const response = await client.get(`/courses/template/${format}`, {
+      responseType: 'blob'
+    });
+    return response.data;
+  }
+
+  /**
+   * Get operation history for a course (Admin only)
+   */
+  async getOperationHistory(
+    courseId: string,
+    query: OperationHistoryQuery = {}
+  ): Promise<PaginatedResponse<OperationHistory>> {
+    const queryParams = new URLSearchParams();
+
+    if (query.page) queryParams.append('page', query.page.toString());
+    if (query.limit) queryParams.append('limit', query.limit.toString());
+    if (query.search) queryParams.append('search', query.search);
+    if (query.operation) queryParams.append('operation', query.operation);
+    if (query.status) queryParams.append('status', query.status);
+    if (query.startDate) queryParams.append('startDate', query.startDate);
+    if (query.endDate) queryParams.append('endDate', query.endDate);
+
+    const url = `/courses/${courseId}/history${queryParams.toString() ? `?${queryParams.toString()}` : ''}`;
+    const response = await apiService.get(url);
+
+    return response.data as PaginatedResponse<OperationHistory>;
+  }
+
+  /**
+   * Revert a specific operation (Admin only)
+   */
+  async revertOperation(operationId: string): Promise<Course> {
+    const response = await apiService.post(`/courses/operations/${operationId}/revert`);
+    return response.data;
+  }
+
+  /**
+   * Get course statistics for admin dashboard
+   */
+  async getAdminStatistics(): Promise<any> {
+    const response = await apiService.get('/courses/admin/statistics');
+    return response.data;
+  }
+
+  /**
+   * Export selected courses (Admin only)
+   */
+  async exportSelectedCourses(courseIds: string[], format: 'csv' | 'excel' = 'csv'): Promise<Blob> {
+    const client = apiService.getClient();
+    const response = await client.post(`/courses/export/selected`, {
+      courseIds,
+      format
+    }, {
+      responseType: 'blob'
+    });
+    return response.data;
+  }
+
+  /**
+   * Validate course data before import (Admin only)
+   */
+  async validateImportData(formData: FormData): Promise<any> {
+    const response = await apiService.post('/courses/import/validate', formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    });
+    return response.data;
   }
 }
 

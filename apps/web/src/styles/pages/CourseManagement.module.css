@@ -1,0 +1,389 @@
+/* Course Management Page Styles */
+
+.courseManagement {
+  padding: 24px;
+  background: #f0f2f5;
+  min-height: 100vh;
+}
+
+/* Statistics Cards */
+.statistics {
+  margin-bottom: 24px;
+}
+
+.statistics :global(.ant-card) {
+  text-align: center;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.statistics :global(.ant-statistic-title) {
+  font-size: 14px;
+  color: #666;
+  margin-bottom: 8px;
+}
+
+.statistics :global(.ant-statistic-content) {
+  font-size: 24px;
+  font-weight: 600;
+}
+
+/* Main Content Card */
+.courseManagement :global(.ant-card-head-title) {
+  font-size: 18px;
+  font-weight: 600;
+  color: #262626;
+}
+
+/* Filters Section */
+.filters {
+  margin-bottom: 16px;
+  padding: 16px;
+  background: #fafafa;
+  border-radius: 6px;
+}
+
+/* Course Table */
+.courseTable {
+  margin-top: 16px;
+}
+
+.courseTable :global(.ant-table-thead > tr > th) {
+  background: #f5f5f5;
+  font-weight: 600;
+  color: #262626;
+}
+
+.courseTable :global(.ant-table-tbody > tr:hover > td) {
+  background: #f5f9ff;
+}
+
+/* Capacity indicator */
+.fullCapacity {
+  color: #ff4d4f;
+  font-weight: 600;
+}
+
+/* Status tags */
+.courseTable :global(.ant-tag) {
+  font-size: 12px;
+  font-weight: 500;
+  padding: 2px 8px;
+  border-radius: 4px;
+}
+
+/* Action buttons */
+.courseTable :global(.ant-btn-link) {
+  padding: 4px 8px;
+}
+
+.courseTable :global(.ant-btn-link:hover) {
+  color: #40a9ff;
+}
+
+/* Modal Styles */
+.courseManagement :global(.ant-modal-header) {
+  background: #f5f5f5;
+  border-bottom: 1px solid #e8e8e8;
+}
+
+.courseManagement :global(.ant-modal-title) {
+  font-weight: 600;
+  color: #262626;
+}
+
+/* Form Styles */
+.courseManagement :global(.ant-form-item-label > label) {
+  font-weight: 500;
+  color: #262626;
+}
+
+.courseManagement :global(.ant-input),
+.courseManagement :global(.ant-select-selector),
+.courseManagement :global(.ant-input-number) {
+  border-radius: 6px;
+}
+
+.courseManagement :global(.ant-input:focus),
+.courseManagement :global(.ant-select-focused .ant-select-selector),
+.courseManagement :global(.ant-input-number:focus) {
+  border-color: #40a9ff;
+  box-shadow: 0 0 0 2px rgba(24, 144, 255, 0.2);
+}
+
+/* Schedule Cards */
+.courseManagement :global(.ant-card-small > .ant-card-head) {
+  min-height: 36px;
+  padding: 0 12px;
+}
+
+.courseManagement :global(.ant-card-small > .ant-card-head-title) {
+  padding: 8px 0;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+/* Upload Area */
+.courseManagement :global(.ant-upload-drag) {
+  border: 2px dashed #d9d9d9;
+  border-radius: 8px;
+  background: #fafafa;
+  transition: all 0.3s;
+}
+
+.courseManagement :global(.ant-upload-drag:hover) {
+  border-color: #40a9ff;
+  background: #f5f9ff;
+}
+
+.courseManagement :global(.ant-upload-drag.ant-upload-drag-hover) {
+  border-color: #40a9ff;
+  background: #f5f9ff;
+}
+
+/* Progress Bar */
+.courseManagement :global(.ant-progress-line) {
+  margin-top: 8px;
+}
+
+/* Import/Export Drawer */
+.courseManagement :global(.ant-drawer-header) {
+  background: #f5f5f5;
+  border-bottom: 1px solid #e8e8e8;
+}
+
+.courseManagement :global(.ant-drawer-title) {
+  font-weight: 600;
+  color: #262626;
+}
+
+/* Result Cards */
+.courseManagement :global(.result-card) {
+  margin-bottom: 16px;
+}
+
+.courseManagement :global(.result-card .ant-card-body) {
+  padding: 16px;
+}
+
+/* Error Table */
+.courseManagement :global(.ant-table-small) {
+  font-size: 12px;
+}
+
+.courseManagement :global(.ant-table-small .ant-table-thead > tr > th) {
+  background: #f5f5f5;
+  font-weight: 500;
+}
+
+/* Alert Styles */
+.courseManagement :global(.ant-alert) {
+  border-radius: 6px;
+  margin-bottom: 16px;
+}
+
+.courseManagement :global(.ant-alert-info) {
+  background: #e6f7ff;
+  border-color: #91d5ff;
+}
+
+.courseManagement :global(.ant-alert-warning) {
+  background: #fffbe6;
+  border-color: #ffe58f;
+}
+
+.courseManagement :global(.ant-alert-error) {
+  background: #fff2f0;
+  border-color: #ffccc7;
+}
+
+.courseManagement :global(.ant-alert-success) {
+  background: #f6ffed;
+  border-color: #b7eb8f;
+}
+
+/* Badge Styles */
+.courseManagement :global(.ant-badge-count) {
+  background: #f5222d;
+  border-radius: 10px;
+  min-width: 20px;
+  height: 20px;
+  line-height: 20px;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+/* Dropdown Menu */
+.courseManagement :global(.ant-dropdown-menu) {
+  border-radius: 6px;
+  box-shadow: 0 3px 6px -4px rgba(0, 0, 0, 0.12), 0 6px 16px 0 rgba(0, 0, 0, 0.08), 0 9px 28px 8px rgba(0, 0, 0, 0.05);
+}
+
+.courseManagement :global(.ant-dropdown-menu-item) {
+  padding: 8px 12px;
+  font-size: 14px;
+}
+
+.courseManagement :global(.ant-dropdown-menu-item:hover) {
+  background: #f5f5f5;
+}
+
+/* Loading State */
+.courseManagement :global(.ant-spin-container) {
+  position: relative;
+}
+
+.courseManagement :global(.ant-spin-blur) {
+  opacity: 0.5;
+  user-select: none;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .courseManagement {
+    padding: 16px;
+  }
+
+  .statistics {
+    margin-bottom: 16px;
+  }
+
+  .filters {
+    padding: 12px;
+  }
+
+  .filters :global(.ant-col) {
+    margin-bottom: 8px;
+  }
+
+  .courseTable {
+    margin-top: 12px;
+  }
+
+  .courseTable :global(.ant-table) {
+    font-size: 12px;
+  }
+
+  .courseTable :global(.ant-table-thead > tr > th),
+  .courseTable :global(.ant-table-tbody > tr > td) {
+    padding: 8px 4px;
+  }
+}
+
+@media (max-width: 576px) {
+  .courseManagement {
+    padding: 8px;
+  }
+
+  .statistics :global(.ant-statistic-content) {
+    font-size: 20px;
+  }
+
+  .filters {
+    padding: 8px;
+  }
+
+  .courseManagement :global(.ant-card-head-title) {
+    font-size: 16px;
+  }
+
+  .courseTable :global(.ant-table) {
+    font-size: 11px;
+  }
+}
+
+/* Dark theme support */
+@media (prefers-color-scheme: dark) {
+  .courseManagement {
+    background: #141414;
+  }
+
+  .courseManagement :global(.ant-card) {
+    background: #1f1f1f;
+    border-color: #303030;
+  }
+
+  .courseManagement :global(.ant-card-head) {
+    background: #1f1f1f;
+    border-bottom-color: #303030;
+  }
+
+  .filters {
+    background: #1f1f1f;
+  }
+
+  .courseTable :global(.ant-table-thead > tr > th) {
+    background: #262626;
+    color: #fff;
+  }
+
+  .courseTable :global(.ant-table-tbody > tr:hover > td) {
+    background: #262626;
+  }
+
+  .courseManagement :global(.ant-input),
+  .courseManagement :global(.ant-select-selector) {
+    background: #1f1f1f;
+    border-color: #434343;
+    color: #fff;
+  }
+
+  .courseManagement :global(.ant-modal-header) {
+    background: #1f1f1f;
+    border-bottom-color: #303030;
+  }
+
+  .courseManagement :global(.ant-upload-drag) {
+    background: #1f1f1f;
+    border-color: #434343;
+  }
+}
+
+/* Animation */
+.courseManagement :global(.ant-fade-enter),
+.courseManagement :global(.ant-fade-appear) {
+  opacity: 0;
+  animation-duration: 0.3s;
+  animation-fill-mode: both;
+  animation-timing-function: cubic-bezier(0.55, 0, 0.55, 0.2);
+}
+
+.courseManagement :global(.ant-fade-enter) {
+  animation-name: antFadeIn;
+}
+
+.courseManagement :global(.ant-fade-appear) {
+  animation-name: antFadeIn;
+}
+
+@keyframes antFadeIn {
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+/* Print styles */
+@media print {
+  .courseManagement {
+    padding: 0;
+    background: #fff;
+  }
+
+  .filters,
+  .courseManagement :global(.ant-card-extra),
+  .courseManagement :global(.ant-table-tbody .ant-btn) {
+    display: none;
+  }
+
+  .courseTable {
+    margin-top: 0;
+  }
+
+  .courseManagement :global(.ant-card) {
+    box-shadow: none;
+    border: 1px solid #ddd;
+  }
+}
